@@ -1,0 +1,20 @@
+Port {{ sshd_port }}
+LogLevel VERBOSE
+PasswordAuthentication no
+ClientAliveInterval 30
+
+# unlink forwarded sockets; for gpg agent forwarding
+StreamLocalBindUnlink yes
+
+# accept environment variables for user's color, language/locale
+# and timezone settings
+AcceptEnv COLORFGBG
+AcceptEnv LANG
+AcceptEnv LC_*
+AcceptEnv TZ
+
+AllowAgentForwarding no
+AllowTcpForwarding {{ sshd_tcp_forwarding }}
+
+# Do *not* add anything here, it is matched by the
+# block above for user root only on build server!

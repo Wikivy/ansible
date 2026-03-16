@@ -1,0 +1,6 @@
+filesystem: xfs
+configure_firewall: true
+
+jobrunner: false
+
+php_version: '8.4'

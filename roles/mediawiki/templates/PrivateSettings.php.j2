@@ -1,0 +1,33 @@
+<?php
+
+// Database passwords
+$wgDBadminpassword = '{{ vault_mediawiki_db_password }}';
+$wgDBpassword = '{{ vault_mediawiki_db_password }}';
+
+// Redis AUTH password
+$wmgRedisPassword = '{{ vault_mediawiki_redis_password }}';
+
+// MediaWiki secret keys
+$wgUpgradeKey = '{{ vault_mediawiki_upgrade_key }}';
+$wgSecretKey = '{{ vault_mediawiki_secret_key }}';
+
+// hCaptcha secret key
+$wgHCaptchaSecretKey = '{{ vault_mediawiki_captcha_secret }}';
+
+// Extension:DiscordNotifications global webhook
+$wmgGlobalDiscordWebhookUrl = '{{ vault_mediawiki_discord_webhook }}';
+$wmgDiscordExperimentalWebhook = '{{ vault_mediawiki_discord_webhook }}';
+
+// Reports write key
+$wgWikivyReportsWriteKey = '{{ vault_mediawiki_reports_key }}';
+
+// SMTP
+// Email
+$wgSMTP = [
+	'host' => 'mail.wikivy.com',
+	'IDHost' => 'wikivy.com',
+	'port' => 587,
+	'username' => 'noreply@wikivy.com',
+	'password' => '{{ vault_mediawiki_email_password }}',
+	'auth' => true,
+];

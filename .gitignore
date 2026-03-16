@@ -1,0 +1,7 @@
+*.pyc
+*.retry
+*.terraform
+*.tfstate*
+.vscode
+.ansible
+/borg-keys/

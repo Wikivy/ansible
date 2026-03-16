@@ -1,0 +1,21 @@
+sudo_users:
+  - root
+  - spacetrain31
+
+# run 'playbooks/tasks/reencrypt-vault-{super,default}-key.yml' when this
+# changes; before doing so, make sure to 'gpg --lsign-key' all keys from both
+# sets (or if you use TOFU, `gpg --tofu-policy good`) before committing the
+# re-encrypted password file, then test that both vaults are working using
+# `ansible-vault view misc/vaults/vault_{hetzner,hcloud}.yml`
+# NOTE: adding a key to this list gives access to both default and super vaults
+vault_super_pgpkeys: &vault_super_pgpkeys
+  - 067A5E5664E7FF4F3D6134660E30BC7B07A1E8AA # spacetrain31
+
+# run 'playbooks/tasks/reencrypt-vault-default-key.yml' when this changes;
+# before doing so, make sure to 'gpg --lsign-key' all keys below (or if you use
+# TOFU, `gpg --tofu-policy good`) before committing the re-encrypted password
+# file, then test that the vault is working by running `ansible-vault view
+# misc/vaults/vault_hcloud.yml`
+vault_default_pgpkeys:
+  - *vault_super_pgpkeys
+

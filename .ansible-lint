@@ -1,0 +1,22 @@
+exclude_paths:
+  - misc
+  # FIXME: parser-error: couldn't resolve module/action 'hosts'. This often indicates a misspelling, missing collection, or incorrect module path.
+  - playbooks/tasks
+  - roles/prometheus/files/node.rules.yml
+skip_list:
+  # yaml: line too long (x > 160 characters) (yaml[line-length])
+  - yaml[line-length]
+  # yaml: too many spaces inside braces (yaml[braces])
+  - yaml[braces]
+  # Do not recommend running tasks as handlers
+  - no-handler
+  # Do not force galaxy info in meta/main.yml
+  - meta-no-info
+  # Allow package versions to be specified as 'latest'
+  - package-latest
+  # Don't require fully-qualified collection names
+  - fqcn
+  # Allow free-form module calling syntax
+  - no-free-form
+  # Allow role includes with unprefixed role variables
+  - var-naming[no-role-prefix]

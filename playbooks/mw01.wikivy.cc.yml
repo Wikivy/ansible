@@ -1,0 +1,5 @@
+- name: Setup mw01.wikivy.cc
+  hosts: mw01.wikivy.cc
+  remote_user: root
+  roles:
+    - { role: mediawiki }

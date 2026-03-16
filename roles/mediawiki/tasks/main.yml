@@ -1,0 +1,148 @@
+- name: Create mediawiki directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  loop:
+   - /srv/mediawiki
+   - /srv/mediawiki/cache
+   - /srv/mediawiki/config
+   - /srv/mediawiki/stopforumspam
+   - /srv/mediawiki-staging
+   - /srv/mediawiki-staging/config
+   - /srv/mediawiki-staging/stopforumspam
+
+- name: Create mediawiki multiversion directories
+  file:
+    path: "/srv/mediawiki/{{ item.version }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  loop: "{{ mediawiki_multiversion }}"
+
+- name: Create mediawiki multiversion staging directories
+  file:
+    path: "/srv/mediawiki-staging/{{ item.version }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  loop: "{{ mediawiki_multiversion }}"
+  when: mediawiki_use_staging
+
+- name: Create mediawiki multiversion cache directoires
+  file:
+    path: "/srv/mediawiki/cache/{{ item.version }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  loop: "{{ mediawiki_multiversion }}"
+
+- name: Install bin scripts
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - { src: bin/getMWVersion.php, dest: '/usr/bin/getMWVersion' }
+    - { src: bin/getMWVersions.php, dest: '/usr/bin/getMWVersions' }
+    - { src: bin/foreachwikiindblist, dest: '/usr/bin/foreachwikiindblist' }
+    - { src: bin/mwdeploy.py, dest: '/usr/bin/mwdeploy' }
+    - { src: bin/mwscript.py, dest: '/usr/bin/mwscript' }
+    - { src: bin/sql.sh, dest: '/usr/bin/sql' }
+    - { src: bin/mweval.sh, dest: '/usr/bin/mweval' }
+    - { src: bin/shell.sh, dest: '/usr/bin/shell' }
+    - { src: bin/sugit.sh, dest: '/usr/bin/sugit' }
+
+- name: Install common mediawiki files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  loop:
+    - { src: robots.php, dest: '/srv/mediawiki/robots.php' }
+    - { src: favicon.php, dest: '/srv/mediawiki/favicon.php' }
+    - { src: touch.php, dest: '/srv/mediawiki/touch.php' }
+    - { src: healthcheck.php, dest: '/srv/mediawiki/healthcheck.php' }
+    - { src: sitemap.php, dest: '/srv/mediawiki/sitemap.php' }
+
+- name: Clone config
+  git:
+    repo: 'https://github.com/Wikivy/mw-config.git'
+    dest: /srv/mediawiki/config
+    clone: yes
+    update: yes
+  become: true
+  become_user: www-data
+
+- name: Clone config to staging
+  git:
+    repo: 'https://github.com/Wikivy/mw-config.git'
+    dest: /srv/mediawiki-staging/config
+    clone: yes
+    update: yes
+  become: true
+  become_user: www-data
+  when: mediawiki_use_staging
+
+- name: Clone ErrorPages
+  git:
+    repo: 'https://github.com/Wikivy/ErrorPages.git'
+    dest: /srv/mediawiki/ErrorPages
+    clone: yes
+    update: yes
+  become: true
+  become_user: www-data
+
+- name: Configure private settings
+  template: src=PrivateSettings.php.j2 dest=/srv/mediawiki/config/PrivateSettings.php owner=www-data group=www-data mode=0755
+
+- name: Clone mediawiki
+  git:
+    repo: 'https://github.com/wikimedia/mediawiki.git'
+    dest: "/srv/mediawiki/{{ item.version }}"
+    version: "{{ item.branch }}"
+    clone: yes
+    update: yes
+  loop: "{{ mediawiki_multiversion }}"
+
+- name: Clone mediawiki to staging
+  git:
+    repo: 'https://github.com/wikimedia/mediawiki.git'
+    dest: "/srv/mediawiki-staging/{{ item.version }}"
+    version: "{{ item.branch }}"
+    clone: yes
+    update: yes
+  loop: "{{ mediawiki_multiversion }}"
+  when: mediawiki_use_staging
+
+- name: Create symlinks
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  loop:
+    - { src: /srv/mediawiki/config/initialise/entrypoints, dest: /srv/mediawiki/w }
+    - { src: /srv/mediawiki/config/initialise/entrypoints/index.php, dest: /srv/mediawiki/index.php }
+
+- name: Create  LocalSettings symlinks
+  file:
+    src: "/srv/mediawiki/config/LocalSettings.php"
+    dest: "/srv/mediawiki/{{ item.version }}/LocalSettings.php"
+    state: link
+  loop: "{{ mediawiki_multiversion }}"
+
+- name: Create symlinks for staging
+  file:
+    src: "/srv/mediawiki-staging/config/initialise/entrypoints"
+    dest: "/srv/mediawiki-staging/w"
+    state: link
+  when: mediawiki_use_staging

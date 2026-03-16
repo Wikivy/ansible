@@ -1,0 +1,3 @@
+mediawiki_use_staging: false
+mediawiki_multiversion:
+  - { version: '1.45', branch: 'REL1_45', default: true }

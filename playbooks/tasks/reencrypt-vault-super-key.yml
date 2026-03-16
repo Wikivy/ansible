@@ -1,0 +1,8 @@
+- name: Reencrypt vault super key
+  hosts: localhost
+  tasks:
+    - name: Reencrypt vault super key
+      include_tasks: include/reencrypt-vault-key.yml
+      vars:
+        vault_id: super
+        vault_pgpkeys: "{{ vault_super_pgpkeys }}"

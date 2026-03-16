@@ -1,0 +1,19 @@
+- name: Install openssh
+  pacman: name=openssh state=present
+
+- name: Configure sshd via drop-in
+  template: src=sshd_config.j2 dest=/etc/ssh/sshd_config.d/override.conf owner=root group=root mode=0644 validate='/usr/sbin/sshd -t -f %s'
+  notify:
+    - Restart sshd
+
+- name: Install motd
+  template: src=motd.j2 dest=/etc/motd owner=root group=root mode=0644
+
+- name: Start and enable sshd
+  service: name=sshd enabled=yes state=started
+
+- name: Open firewall holes
+  ansible.posix.firewalld: service={{ 'ssh' if sshd_port == 22 else omit }} port={{ "%d/tcp" | format(sshd_port) if sshd_port != 22 else omit }} permanent=true state=enabled immediate=yes
+  when: configure_firewall is defined and configure_firewall
+  tags:
+    - firewall
